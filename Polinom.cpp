@@ -251,6 +251,17 @@ std::pair<Polinom, Polinom> operator/(const Polinom& p1, const Polinom& p2) // f
     }
 }
 
+bool operator==(const Polinom& p1, const Polinom& p2)
+{
+    if(p1.grad != p2.grad)
+        return false;
+    if(p1.nr_monoame != p2.nr_monoame)
+        return false;
+    for(int i = 0; i < p1.nr_monoame; ++i)
+        if(p1.monoame[i].getGrad() != p2.monoame[i].getGrad() || p1.monoame[i].getCoef() != p2.monoame[i].getCoef())
+            return false;
+    return true;
+}
 std::istream& operator>>(std::istream& in, Polinom& poli)
 {
     in >> poli.nr_monoame;
@@ -421,7 +432,7 @@ float Polinom::plugInNumber(float var) const // metoda asta returneaza rezultatu
 }
 
 /// mai multe detalii despre algoritmul utilizat aici: https://en.wikipedia.org/wiki/Rational_root_theorem
-std::vector<Polinom*> Polinom::reducedForm() const // voi folosi radacini rationale pentru a determina o forma redusa a polinomului; daca nu are o sa-l consider ireductibil
+std::vector<Polinom> Polinom::reducedForm() const // voi folosi radacini rationale pentru a determina o forma redusa a polinomului; daca nu are o sa-l consider ireductibil
 {
     std::set<int> constFactors, leadingFactors;
     int constTerm = 0, leadingTerm = this->getLeadingCoef();
@@ -455,27 +466,37 @@ std::vector<Polinom*> Polinom::reducedForm() const // voi folosi radacini ration
     if(foundValue == false)
     {
         std::cout << "Nu au fost gasita o factorizare cu radacini rationale.\n";
-        std::vector<Polinom*> ret;
+        std::vector<Polinom> ret;
         return ret;
     }
     // daca am ajuns aici, avem o radacina in correctVal
     // tot ce ramane de facut e de construit un polinom de grad 1 de forma x - correctVal si sa impart polinomu original la el
-    Polinom* first_factor = new Polinom;
-    first_factor->addMonom(Monom(0, -correctVal));
-    first_factor->addMonom(Monom(1, 1));
-    Polinom* second_factor = new Polinom;
-    *second_factor = (*this / *first_factor).first;
-    std::vector<Polinom*> ret;
-    ret.push_back(first_factor);
-    ret.push_back(second_factor);
-    return ret;
+    try{
+        Polinom first_factor;
+        first_factor.addMonom(Monom(0, -correctVal));
+        first_factor.addMonom(Monom(1, 1));
+        if(first_factor == *this) throw Same_poly();
+        Polinom second_factor;
+        second_factor = (*this / first_factor).first;
+        std::vector<Polinom> ret;
+        ret.push_back(first_factor);
+        ret.push_back(second_factor);
+        return ret;
+    }
+    catch(Same_poly& sp)
+    {
+        std::cout << "Polinomul e de fapt ireductibil.\n";
+        std::vector<Polinom> ret;
+        ret.push_back(*this);
+        return ret;
+    }
 }
 
-void Polinom::showReducedForm()
+void Polinom::showReducedForm() const
 {
-    std::vector<Polinom*> redForm = this->reducedForm();
-    for(std::vector<Polinom*>::iterator it = redForm.begin(); it != redForm.end(); ++it)
+    std::vector<Polinom> redForm = this->reducedForm();
+    for(std::vector<Polinom>::iterator it = redForm.begin(); it != redForm.end(); ++it)
     {
-        std::cout << "(" << (**it) << ")";
+        std::cout << "(" << (*it) << ")";
     }
 }

@@ -4,9 +4,11 @@ using namespace std;
 
 int main()
 {
-    Polinom p;
-    cin >> p;
-    Polinom_ireductibil pi;
+    Polinom p, q;
+    cin >> p >> q;
+    (p + q).showReducedForm(); cout << endl;
+    Polinom_ireductibil pi = p + q;
+    cout << pi << endl;
     cin >> pi;
     cout << p << '\n' <<p.iredEinstein() << '\n';
     cout << pi << ' ' << p + pi << '\n';

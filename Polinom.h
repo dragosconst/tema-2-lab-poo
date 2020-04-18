@@ -4,6 +4,7 @@
 #include <Monom.h>
 #include <Empty_poly.h>
 #include <Division_by_zero.h>
+#include <Same_poly.h>
 #include <algorithm>
 #include <vector>
 #include <set>
@@ -35,14 +36,15 @@ public:
     friend Polinom operator*(const Polinom&, const Monom&);
     friend Polinom operator*(const Monom&, const Polinom&);
     Polinom& operator*=(const Polinom&);
+    friend bool operator==(const Polinom&, const Polinom&);
     friend std::pair<Polinom, Polinom> operator/(const Polinom&, const Polinom&);
 
     friend std::istream& operator>>(std::istream&, Polinom&);
     friend std::ostream& operator<<(std::ostream&, const Polinom&);
 
     virtual bool iredEinstein();
-    virtual std::vector<Polinom*> reducedForm() const;
-    virtual void showReducedForm();
+    virtual std::vector<Polinom> reducedForm() const;
+    virtual void showReducedForm() const;
 
     float plugInNumber(float) const;
     void addMonom(Monom);
