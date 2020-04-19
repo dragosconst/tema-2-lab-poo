@@ -33,7 +33,6 @@ public:
     Polinom operator+(const Polinom&) const;
     Polinom& operator+=(const Polinom&);
     Polinom operator-(const Polinom&) const;
-    Polinom& operator-=(const Polinom&);
     Polinom operator*(const Polinom&) const;
     friend Polinom operator*(const Polinom&, const Monom&);
     friend Polinom operator*(const Monom&, const Polinom&);

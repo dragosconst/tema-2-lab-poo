@@ -16,7 +16,7 @@ int main()
     return 0;
 }
 
-// o functie care face impartirea la doua polinoame si care ilustreaza polimorfismul claselor
+// o functie care face impartirea la doua polinoame si care ilustreazaish polimorfismul claselor
 void coolLongDivision(Polinom* f, Polinom* g)
 {
     bool finishedDiv = false;

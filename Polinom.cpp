@@ -161,14 +161,6 @@ Polinom Polinom::operator-(const Polinom& other) const
         exit(EXIT_FAILURE);
     }
 }
-Polinom& Polinom::operator-=(const Polinom& other)
-{
-    Polinom temp = *this - other;
-    delete[] monoame;
-    this->monoame = nullptr;
-    *this = temp;
-    return *this;
-}
 Polinom Polinom::operator*(const Polinom& other) const
 {
     try{
@@ -241,7 +233,7 @@ std::pair<Polinom, Polinom> operator/(const Polinom& p1, const Polinom& p2) // f
             Polinom reminder;
             Monom mon_rem(temp.getGrad() - p2.getGrad(), temp.getLeadingCoef() / p2.getLeadingCoef()); // e algoritmu normal de impartire la polinoame
             reminder = mon_rem * p2; // iau fiecare grad si gasesc monomu cu care trebuie inmultit p2 ca sa ajung la gradul curent al lui p1;
-            temp -= reminder;
+            temp = temp - reminder;
             q.addMonom(mon_rem);
         }
         // acum catul e gata, restul e determinat printr-un simplu calcul
@@ -551,7 +543,7 @@ std::vector<Polinom*> Polinom::reducedForm() // voi folosi radacini rationale pe
     }
     catch(Same_poly& sp)
     {
-//        std::cout << "Polinomul e de fapt ireductibil.\n";
+//      std::cout << "Polinomul e de fapt ireductibil.\n";
         std::vector<Polinom*> ret;
         ret.push_back(new Polinom(*this));
         this->avoidLeaks = ret;
