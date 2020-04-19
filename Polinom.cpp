@@ -25,6 +25,11 @@ Polinom::~Polinom()
     if(this->monoame)
         delete[] this->monoame;
     this->monoame = nullptr;
+    // ca sa ma asigur ca functia reducedForm nu da memory leaks
+    for(std::vector<Polinom*>::iterator it = this->avoidLeaks.begin(); it != this->avoidLeaks.end(); ++it)
+    {
+        delete *it;
+    }
 }
 
 Polinom::Polinom(const Polinom& other)
@@ -36,6 +41,7 @@ Polinom::Polinom(const Polinom& other)
     {
         this->monoame[i] = other.monoame[i];
     }
+    this->avoidLeaks = other.avoidLeaks;
 }
 
 Polinom& Polinom::operator=(const Polinom& rhs)
@@ -43,11 +49,22 @@ Polinom& Polinom::operator=(const Polinom& rhs)
     if (this == &rhs) return *this; // handle self assignment
     this->grad = rhs.grad;
     this->nr_monoame = rhs.nr_monoame;
+    if(this->monoame != nullptr)
+    {
+        delete[] this->monoame;
+    }
     this->monoame = new Monom[nr_monoame]; // am decis sa fac un deep copy si la egalitate
     for(int i = 0; i < this->nr_monoame; ++i)
     {
         this->monoame[i] = rhs.monoame[i];
     }
+    // ca sa ma asigur ca functia reducedForm nu da memory leaks
+    std::vector<Polinom*>::iterator it = this->avoidLeaks.begin();
+    for(std::vector<Polinom*>::iterator it = this->avoidLeaks.begin(); it != this->avoidLeaks.end(); ++it)
+    {
+        delete *it;
+    }
+    this->avoidLeaks = rhs.avoidLeaks;
     return *this;
 }
 Polinom Polinom::operator+(const Polinom& other) const
@@ -97,6 +114,7 @@ Polinom& Polinom::operator+=(const Polinom& other)
 {
     Polinom temp = *this + other;
     delete[] monoame;
+    this->monoame = nullptr;
     *this = temp;
     return *this;
 }
@@ -147,6 +165,7 @@ Polinom& Polinom::operator-=(const Polinom& other)
 {
     Polinom temp = *this - other;
     delete[] monoame;
+    this->monoame = nullptr;
     *this = temp;
     return *this;
 }
@@ -178,7 +197,6 @@ Polinom Polinom::operator*(const Polinom& other) const
                 }
             }
         }
-
         rez = polinoame[0];
         for(int i = 1; i < tempArrSize; ++i) // adun toate polinoamele rezultate
         {
@@ -193,13 +211,6 @@ Polinom Polinom::operator*(const Polinom& other) const
         std::cout << "Nu se pot inmulti termeni care sunt polinoame goale!";
         exit(EXIT_FAILURE);
     }
-}
-Polinom& Polinom::operator*=(const Polinom& other)
-{
-    Polinom temp = *this * other;
-    delete[] monoame;
-    *this = temp;
-    return *this;
 }
 Polinom operator*(const Polinom& p, const Monom& m)
 {
@@ -223,30 +234,28 @@ std::pair<Polinom, Polinom> operator/(const Polinom& p1, const Polinom& p2) // f
             r = p1;
             return {q, r};
         }
-        try{
-            if(p2.getGrad() == -INF) throw Division_by_zero();
-            Polinom temp = p1;
-            while(temp.getGrad() >= p2.getGrad())
-            {
-                Polinom reminder;
-                Monom mon_rem(temp.getGrad() - p2.getGrad(), temp.getLeadingCoef() / p2.getLeadingCoef()); // e algoritmu normal de impartire la polinoame
-                reminder = mon_rem * p2; // iau fiecare grad si gasesc monomu cu care trebuie inmultit p2 ca sa ajung la gradul curent al lui p1
-                temp -= reminder;
-                q.addMonom(mon_rem);
-            }
-            // acum catul e gata, restul e determinat printr-un simplu calcul
-            r = p1 - p2 * q;
-            return {q, r};
-        }
-        catch(Division_by_zero& dz)
+        if(p2.getGrad() == -INF) throw Division_by_zero();
+        Polinom temp = p1;
+        while(temp.getGrad() >= p2.getGrad())
         {
-            std::cout << "Nu se poate face impartirea la un polinom nul!";
-            exit(EXIT_FAILURE);
+            Polinom reminder;
+            Monom mon_rem(temp.getGrad() - p2.getGrad(), temp.getLeadingCoef() / p2.getLeadingCoef()); // e algoritmu normal de impartire la polinoame
+            reminder = mon_rem * p2; // iau fiecare grad si gasesc monomu cu care trebuie inmultit p2 ca sa ajung la gradul curent al lui p1;
+            temp -= reminder;
+            q.addMonom(mon_rem);
         }
+        // acum catul e gata, restul e determinat printr-un simplu calcul
+        r = p1 - p2 * q;
+        return {q, r};
     }
     catch(Empty_poly& ep)
     {
         std::cout << "Nu se poate face impartirea cu termeni polinoame goale!";
+        exit(EXIT_FAILURE);
+    }
+    catch(Division_by_zero& dz)
+    {
+        std::cout << "Nu se poate face impartirea la un polinom nul!";
         exit(EXIT_FAILURE);
     }
 }
@@ -261,6 +270,10 @@ bool operator==(const Polinom& p1, const Polinom& p2)
         if(p1.monoame[i].getGrad() != p2.monoame[i].getGrad() || p1.monoame[i].getCoef() != p2.monoame[i].getCoef())
             return false;
     return true;
+}
+bool operator!=(const Polinom& p1, const Polinom& p2)
+{
+    return !operator==(p1, p2);
 }
 std::istream& operator>>(std::istream& in, Polinom& poli)
 {
@@ -290,7 +303,7 @@ std::ostream& operator<<(std::ostream& out, const Polinom& poli)
 float Polinom::getLeadingCoef() const
 {
     try{
-        if(nr_monoame == 0) throw Empty_poly();
+        if(this->nr_monoame == 0) throw Empty_poly();
         return monoame[this->nr_monoame - 1].getCoef();
     }
     catch(Empty_poly& ep)
@@ -431,8 +444,7 @@ float Polinom::plugInNumber(float var) const // metoda asta returneaza rezultatu
     return rez;
 }
 
-/// mai multe detalii despre algoritmul utilizat aici: https://en.wikipedia.org/wiki/Rational_root_theorem
-std::vector<Polinom> Polinom::reducedForm() const // voi folosi radacini rationale pentru a determina o forma redusa a polinomului; daca nu are o sa-l consider ireductibil
+bool Polinom::isReductible() const
 {
     std::set<int> constFactors, leadingFactors;
     int constTerm = 0, leadingTerm = this->getLeadingCoef();
@@ -465,9 +477,7 @@ std::vector<Polinom> Polinom::reducedForm() const // voi folosi radacini rationa
     }
     if(foundValue == false)
     {
-        std::cout << "Nu au fost gasita o factorizare cu radacini rationale.\n";
-        std::vector<Polinom> ret;
-        return ret;
+        return false;
     }
     // daca am ajuns aici, avem o radacina in correctVal
     // tot ce ramane de facut e de construit un polinom de grad 1 de forma x - correctVal si sa impart polinomu original la el
@@ -476,27 +486,85 @@ std::vector<Polinom> Polinom::reducedForm() const // voi folosi radacini rationa
         first_factor.addMonom(Monom(0, -correctVal));
         first_factor.addMonom(Monom(1, 1));
         if(first_factor == *this) throw Same_poly();
-        Polinom second_factor;
-        second_factor = (*this / first_factor).first;
-        std::vector<Polinom> ret;
+        return true;
+    }
+    catch(Same_poly& sp)
+    {
+        return false;
+    }
+
+}
+
+/// mai multe detalii despre algoritmul utilizat aici: https://en.wikipedia.org/wiki/Rational_root_theorem
+std::vector<Polinom*> Polinom::reducedForm() // voi folosi radacini rationale pentru a determina o forma redusa a polinomului; daca nu are o sa-l consider ireductibil
+{
+    std::set<int> constFactors, leadingFactors;
+    int constTerm = 0, leadingTerm = this->getLeadingCoef();
+    for(int i = 0; i < this->nr_monoame; ++i) // caut coeficientul termenului constant, daca nu apare in array u de monoame inseamna ca e zero
+        if(this->monoame[i].getGrad() == 0)
+        {
+            constTerm = this->monoame[i].getCoef();
+        }
+        else if(this->monoame[i].getGrad() > 0)
+            break;
+    buildFactors(constTerm, constFactors);
+    buildFactors(leadingTerm, leadingFactors);
+
+    std::set<int>::iterator it = constFactors.begin();
+    bool foundValue = false;
+    float correctVal;
+    for(; it != constFactors.end() && !foundValue; it++)
+    {
+        std::set<int>::iterator it_l = leadingFactors.begin();
+        for(; it_l != leadingFactors.end() && !foundValue; ++it_l)
+        {
+            if(this->plugInNumber((float)(*it)/(float)(*it_l)) == 0)
+            {
+                foundValue = true;
+                correctVal = (float)(*it)/(float)(*it_l);
+                break;
+            }
+        }
+
+    }
+    if(foundValue == false)
+    {
+        //std::cout << "Nu au fost gasita o factorizare cu radacini rationale.\n";
+        std::vector<Polinom*> ret;
+        ret.push_back(new Polinom(*this));
+        return ret;
+    }
+    // daca am ajuns aici, avem o radacina in correctVal
+    // tot ce ramane de facut e de construit un polinom de grad 1 de forma x - correctVal si sa impart polinomu original la el
+    try{
+        Polinom* first_factor = new Polinom;
+        first_factor->addMonom(Monom(0, -correctVal));
+        first_factor->addMonom(Monom(1, 1));
+        if(*first_factor == *this) throw Same_poly();
+        Polinom* second_factor = new Polinom;
+        *second_factor = ((*this) / (*first_factor)).first;
+        std::vector<Polinom*> ret;
         ret.push_back(first_factor);
         ret.push_back(second_factor);
+        this->avoidLeaks = ret;
         return ret;
     }
     catch(Same_poly& sp)
     {
-        std::cout << "Polinomul e de fapt ireductibil.\n";
-        std::vector<Polinom> ret;
-        ret.push_back(*this);
+//        std::cout << "Polinomul e de fapt ireductibil.\n";
+        std::vector<Polinom*> ret;
+        ret.push_back(new Polinom(*this));
+        this->avoidLeaks = ret;
         return ret;
     }
 }
 
-void Polinom::showReducedForm() const
+void Polinom::showReducedForm()
 {
-    std::vector<Polinom> redForm = this->reducedForm();
-    for(std::vector<Polinom>::iterator it = redForm.begin(); it != redForm.end(); ++it)
+    this->reducedForm();
+    std::vector<Polinom*> redForm = this->reducedForm();
+    for(std::vector<Polinom*>::iterator it = redForm.begin(); it != redForm.end(); ++it)
     {
-        std::cout << "(" << (*it) << ")";
+        std::cout << "(" << (**it) << ")";
     }
 }

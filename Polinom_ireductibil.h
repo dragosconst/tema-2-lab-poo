@@ -13,8 +13,11 @@ public:
     ~Polinom_ireductibil();
     Polinom_ireductibil& operator=(const Polinom&);
 
-    bool iredEinstein() const { return true; }
-    void showReducedForm() const { std::cout << *this; }
+    bool iredEinstein() { return true; }
+    std::vector<Polinom*> reducedForm();
+    void showReducedForm() { std::cout << *this; }
+
+    friend std::istream& operator>>(std::istream&, Polinom_ireductibil&);
 };
 
 #endif // POLINOM_IREDUCTIBIL_H
