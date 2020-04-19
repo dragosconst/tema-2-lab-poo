@@ -4,6 +4,7 @@ Polinom::Polinom() // un polinom cu constructor gol va fi un polinom gol, distin
 {
     this->nr_monoame = 0;
     this->monoame = nullptr;
+    this->coefs = nullptr;
     this->grad = -INF - 1;
 }
 Polinom::Polinom(int nr_monoame, Monom* monoame)
@@ -18,12 +19,24 @@ Polinom::Polinom(int nr_monoame, Monom* monoame)
             this->grad = this->monoame[i].getGrad();
     }
     std::sort(monoame, monoame + nr_monoame, Monom::cmp); // in cazul in care lista de monoame nu e data gata sortata dupa grade
+    this->coefs = new int[this->grad <= -INF ? 1 : this->grad + 1];
+    int i_m = 0, i_c = 0;
+    while(i_m < nr_monoame)
+    {
+        if(this->monoame[i_m].getGrad() == i_c
+           ||(!this->monoame[i_m].getCoef() && i_c == 0))
+            this->coefs[i_c++] = this->monoame[i_m++].getCoef();
+        else
+            this->coefs[i_c++] = 0;
+    }
 }
 
 Polinom::~Polinom()
 {
     if(this->monoame)
         delete[] this->monoame;
+    if(this->coefs)
+        delete[] this->coefs;
     this->monoame = nullptr;
     // ca sa ma asigur ca functia reducedForm nu da memory leaks
     for(std::vector<Polinom*>::iterator it = this->avoidLeaks.begin(); it != this->avoidLeaks.end(); ++it)
@@ -42,6 +55,16 @@ Polinom::Polinom(const Polinom& other)
         this->monoame[i] = other.monoame[i];
     }
     this->avoidLeaks = other.avoidLeaks;
+    this->coefs = new int[this->grad <= -INF ? 1 : this->grad + 1];
+    int i_m = 0, i_c = 0;
+    while(i_m < nr_monoame)
+    {
+        if(this->monoame[i_m].getGrad() == i_c
+           ||(!this->monoame[i_m].getCoef() && i_c == 0))
+            this->coefs[i_c++] = this->monoame[i_m++].getCoef();
+        else
+            this->coefs[i_c++] = 0;
+    }
 }
 
 Polinom& Polinom::operator=(const Polinom& rhs)
@@ -52,6 +75,10 @@ Polinom& Polinom::operator=(const Polinom& rhs)
     if(this->monoame != nullptr)
     {
         delete[] this->monoame;
+    }
+    if(this->coefs != nullptr)
+    {
+        delete[] this->coefs;
     }
     this->monoame = new Monom[nr_monoame]; // am decis sa fac un deep copy si la egalitate
     for(int i = 0; i < this->nr_monoame; ++i)
@@ -65,6 +92,16 @@ Polinom& Polinom::operator=(const Polinom& rhs)
         delete *it;
     }
     this->avoidLeaks = rhs.avoidLeaks;
+    this->coefs = new int[this->grad <= -INF ? 1 : this->grad + 1];
+    int i_m = 0, i_c = 0;
+    while(i_m < nr_monoame)
+    {
+        if(this->monoame[i_m].getGrad() == i_c
+           ||(!this->monoame[i_m].getCoef() && i_c == 0))
+            this->coefs[i_c++] = this->monoame[i_m++].getCoef();
+        else
+            this->coefs[i_c++] = 0;
+    }
     return *this;
 }
 Polinom Polinom::operator+(const Polinom& other) const

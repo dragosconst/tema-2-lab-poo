@@ -15,6 +15,7 @@ class Polinom
 protected:
     int nr_monoame;
     Monom* monoame;
+    int* coefs;
     int grad;
     std::vector<Polinom*> avoidLeaks;
 public:

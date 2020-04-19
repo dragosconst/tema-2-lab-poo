@@ -33,6 +33,16 @@ Polinom_ireductibil::Polinom_ireductibil(const Polinom& other)
             this->monoame[i] = other.getMonoame()[i];
         }
         this->avoidLeaks = other.getLeaks();
+        this->coefs = new int[this->grad <= -INF ? 1 : this->grad + 1];
+        int i_m = 0, i_c = 0;
+        while(i_m < nr_monoame)
+        {
+            if(this->monoame[i_m].getGrad() == i_c
+               ||(!this->monoame[i_m].getCoef() && i_c == 0))
+                this->coefs[i_c++] = this->monoame[i_m++].getCoef();
+            else
+                this->coefs[i_c++] = 0;
+        }
     }
     catch(Poly_is_not_ired& pisni)
     {
@@ -49,6 +59,8 @@ Polinom_ireductibil& Polinom_ireductibil::operator=(const Polinom& rhs)
         this->nr_monoame = rhs.getNrMonoame();
         if(this->monoame != nullptr)
             delete[] this->monoame;
+        if(this->coefs != nullptr)
+            delete[] this->coefs;
         this->monoame = new Monom[nr_monoame]; // am decis sa fac un deep copy si la egalitate
         for(int i = 0; i < this->nr_monoame; ++i)
         {
@@ -60,6 +72,16 @@ Polinom_ireductibil& Polinom_ireductibil::operator=(const Polinom& rhs)
             delete *it;
         }
         this->avoidLeaks = rhs.getLeaks();
+        this->coefs = new int[this->grad <= -INF ? 1 : this->grad + 1];
+        int i_m = 0, i_c = 0;
+        while(i_m < nr_monoame)
+        {
+            if(this->monoame[i_m].getGrad() == i_c
+               ||(!this->monoame[i_m].getCoef() && i_c == 0))
+                this->coefs[i_c++] = this->monoame[i_m++].getCoef();
+            else
+                this->coefs[i_c++] = 0;
+        }
         return *this;
     }
     catch(Poly_is_not_ired& pisni)
