@@ -323,31 +323,6 @@ void Polinom::addMonom(Monom m) // metoda care adauga un nou monom in polinom
     delete[] temp;
 }
 
-void Polinom::removeMonom(int grad) // o sa scoata din polinom monomul de grad din argument
-{
-    Monom* temp = new Monom[this->nr_monoame - 1];
-    if(grad == this->grad)
-        this->grad = -INF - 1; // daca e sters gradul maxim resetez gradul polinomului si il caut din nou in parcurgerea de mai jos
-    int i_temp = 0;
-    for(int i = 0; i < this->nr_monoame; ++i)
-    {
-        if(this->monoame[i].getGrad() != grad) // ca sa sara peste monomul de grad specificat
-        {
-            temp[i_temp++] = this->monoame[i];
-            if(this->monoame[i].getGrad() > this->grad) // if-ul asta are rost in cazul in care e sters monomul de grad maxim din polinom
-                this->grad = this->monoame[i].getGrad();
-        }
-    }
-
-    this->nr_monoame--;
-    delete[] this->monoame;
-    this->monoame = new Monom[this->nr_monoame];
-    for(int i = 0; i < this->nr_monoame; ++i)
-        this->monoame[i] = temp[i];
-
-    delete[] temp;
-}
-
 bool Polinom::iredEinstein() // Atentie!! Din moment ce nu e o conditie necesara(doar suficienta), e posibil sa existe polinoame ireductibile(sau reductibile) care sa nu fie gasite de metoda.
 {
     if(this->emptyPoly()) throw Empty_poly();
