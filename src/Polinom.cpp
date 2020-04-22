@@ -106,46 +106,39 @@ Polinom& Polinom::operator=(const Polinom& rhs)
 }
 Polinom Polinom::operator+(const Polinom& other) const
 {
-    try{
-        if(this->emptyPoly() || other.emptyPoly()) throw Empty_poly();
-        Polinom rez;
-        int ind_left = 0, ind_right = 0;
-        while(ind_left < this->nr_monoame && ind_right < other.nr_monoame) // algoritmul face un fel de interclasare a polinoamelor pt suma
-        {
-            Monom temp;
-            if(this->monoame[ind_left].getGrad() == other.monoame[ind_right].getGrad())
-            {
-                temp = this->monoame[ind_left++] + other.monoame[ind_right++];
-            }
-            else if(this->monoame[ind_left].getGrad() < other.monoame[ind_right].getGrad())
-            {
-                temp = this->monoame[ind_left++];
-            }
-            else
-            {
-                temp = other.monoame[ind_right++];
-            }
-
-            if(!temp.null())
-                rez.addMonom(temp);
-            else if(rez.emptyPoly() || rez.getMonoame()[0].getGrad() > 0) //  conditii ca sa nu fie adaugate monoame nule de mai multe ori
-                    rez.addMonom(Monom());
-        }
-        while(ind_left < this->nr_monoame)
-        {
-            rez.addMonom(this->monoame[ind_left++]);
-        }
-        while(ind_right < other.nr_monoame)
-        {
-            rez.addMonom(other.monoame[ind_right++]);
-        }
-        return rez;
-    }
-    catch(Empty_poly& ep)
+    if(this->emptyPoly() || other.emptyPoly()) throw Empty_poly();
+    Polinom rez;
+    int ind_left = 0, ind_right = 0;
+    while(ind_left < this->nr_monoame && ind_right < other.nr_monoame) // algoritmul face un fel de interclasare a polinoamelor pt suma
     {
-        std::cout << "Nu se pot aduna polinoame goale!";
-        exit(EXIT_FAILURE);
+        Monom temp;
+        if(this->monoame[ind_left].getGrad() == other.monoame[ind_right].getGrad())
+        {
+            temp = this->monoame[ind_left++] + other.monoame[ind_right++];
+        }
+        else if(this->monoame[ind_left].getGrad() < other.monoame[ind_right].getGrad())
+        {
+            temp = this->monoame[ind_left++];
+        }
+        else
+        {
+            temp = other.monoame[ind_right++];
+        }
+
+        if(!temp.null())
+            rez.addMonom(temp);
+        else if(rez.emptyPoly() || rez.getMonoame()[0].getGrad() > 0) //  conditii ca sa nu fie adaugate monoame nule de mai multe ori
+                rez.addMonom(Monom());
     }
+    while(ind_left < this->nr_monoame)
+    {
+        rez.addMonom(this->monoame[ind_left++]);
+    }
+    while(ind_right < other.nr_monoame)
+    {
+        rez.addMonom(other.monoame[ind_right++]);
+    }
+    return rez;
 }
 Polinom& Polinom::operator+=(const Polinom& other)
 {
@@ -157,89 +150,75 @@ Polinom& Polinom::operator+=(const Polinom& other)
 }
 Polinom Polinom::operator-(const Polinom& other) const
 {
-    try{
-        if(this->emptyPoly() || other.emptyPoly()) throw Empty_poly();
-        Polinom rez;
-        int ind_left = 0, ind_right = 0;
-        while(ind_left < this->nr_monoame && ind_right < other.nr_monoame) // algoritmul face un fel de interclasare a polinoamelor pt suma
-        {
-            Monom temp;
-            if(this->monoame[ind_left].getGrad() == other.monoame[ind_right].getGrad())
-            {
-                temp = this->monoame[ind_left++] - other.monoame[ind_right++];
-            }
-            else if(this->monoame[ind_left].getGrad() < other.monoame[ind_right].getGrad())
-            {
-                temp = this->monoame[ind_left++];
-            }
-            else
-            {
-                temp = other.monoame[ind_right++] * -1;
-            }
-
-            if(!temp.null()) // nu are rost sa fie adaugate monoame nule
-                rez.addMonom(temp);
-            else if(rez.emptyPoly() || rez.getMonoame()[0].getGrad() > 0) //  conditii ca sa nu fie adaugate monoame nule de mai multe ori
-                    rez.addMonom(Monom());
-        }
-        while(ind_left < this->nr_monoame)
-        {
-            rez.addMonom(this->monoame[ind_left++]);
-        }
-        while(ind_right < other.nr_monoame)
-        {
-            rez.addMonom(other.monoame[ind_right++] * -1);
-        }
-        return rez;
-    }
-    catch(Empty_poly& ep)
+    if(this->emptyPoly() || other.emptyPoly()) throw Empty_poly();
+    Polinom rez;
+    int ind_left = 0, ind_right = 0;
+    while(ind_left < this->nr_monoame && ind_right < other.nr_monoame) // algoritmul face un fel de interclasare a polinoamelor pt suma
     {
-        std::cout << "Nu se poate face scaderea cu termeni polinoame goale!";
-        exit(EXIT_FAILURE);
+        Monom temp;
+        if(this->monoame[ind_left].getGrad() == other.monoame[ind_right].getGrad())
+        {
+            temp = this->monoame[ind_left++] - other.monoame[ind_right++];
+        }
+        else if(this->monoame[ind_left].getGrad() < other.monoame[ind_right].getGrad())
+        {
+            temp = this->monoame[ind_left++];
+        }
+        else
+        {
+            temp = other.monoame[ind_right++] * -1;
+        }
+
+        if(!temp.null()) // nu are rost sa fie adaugate monoame nule
+           rez.addMonom(temp);
+        else if(rez.emptyPoly() || rez.getMonoame()[0].getGrad() > 0) //  conditii ca sa nu fie adaugate monoame nule de mai multe ori
+            rez.addMonom(Monom());
     }
+    while(ind_left < this->nr_monoame)
+    {
+        rez.addMonom(this->monoame[ind_left++]);
+    }
+    while(ind_right < other.nr_monoame)
+    {
+        rez.addMonom(other.monoame[ind_right++] * -1);
+    }
+    return rez;
 }
 Polinom Polinom::operator*(const Polinom& other) const
 {
-    try{
-        if(this->emptyPoly() || other.emptyPoly()) throw Empty_poly();
-        Polinom rez;
-        int tempArrSize = std::min(this->nr_monoame, other.nr_monoame); // o sa fac un vector temporar cu toate rezultatele partiale de la impartire, iar apoi le adun
-        if(!tempArrSize) // daca un polinom e gol nu se poate face nicio impartire
-            return rez;
-        Polinom* polinoame = new Polinom[tempArrSize]; // ex: (x+1)(x+2) -> da vectoru x^2+2x, x + 2 => rezultatul final e obtinut prin adunarea rezultatelor
-        for(int i = 0; i < tempArrSize; ++i)
-        {
-            if(this->nr_monoame < other.nr_monoame)
-            {
-                Monom tempFactor = this->monoame[i];
-                for(int j = 0; j < other.nr_monoame; ++j)
-                {
-                    polinoame[i].addMonom(tempFactor * other.getMonoame()[j]);
-                }
-            }
-            else
-            {
-                Monom tempFactor = other.monoame[i];
-                for(int j = 0; j < this->nr_monoame; ++j)
-                {
-                    polinoame[i].addMonom(tempFactor * this->getMonoame()[j]);
-                }
-            }
-        }
-        rez = polinoame[0];
-        for(int i = 1; i < tempArrSize; ++i) // adun toate polinoamele rezultate
-        {
-            rez += polinoame[i];
-        }
-        delete[] polinoame; // dezaloc memoria folosita in functie
-
+    if(this->emptyPoly() || other.emptyPoly()) throw Empty_poly();
+    Polinom rez;
+    int tempArrSize = std::min(this->nr_monoame, other.nr_monoame); // o sa fac un vector temporar cu toate rezultatele partiale de la impartire, iar apoi le adun
+    if(!tempArrSize) // daca un polinom e gol nu se poate face nicio impartire
         return rez;
-    }
-    catch(Empty_poly& ep)
+    Polinom* polinoame = new Polinom[tempArrSize]; // ex: (x+1)(x+2) -> da vectoru x^2+2x, x + 2 => rezultatul final e obtinut prin adunarea rezultatelor
+    for(int i = 0; i < tempArrSize; ++i)
     {
-        std::cout << "Nu se pot inmulti termeni care sunt polinoame goale!";
-        exit(EXIT_FAILURE);
+        if(this->nr_monoame < other.nr_monoame)
+        {
+            Monom tempFactor = this->monoame[i];
+            for(int j = 0; j < other.nr_monoame; ++j)
+            {
+                polinoame[i].addMonom(tempFactor * other.getMonoame()[j]);
+            }
+        }
+        else
+        {
+            Monom tempFactor = other.monoame[i];
+            for(int j = 0; j < this->nr_monoame; ++j)
+            {
+                polinoame[i].addMonom(tempFactor * this->getMonoame()[j]);
+            }
+        }
     }
+    rez = polinoame[0];
+    for(int i = 1; i < tempArrSize; ++i) // adun toate polinoamele rezultate
+    {
+        rez += polinoame[i];
+    }
+    delete[] polinoame; // dezaloc memoria folosita in functie
+
+    return rez;
 }
 Polinom operator*(const Polinom& p, const Monom& m)
 {
@@ -254,39 +233,27 @@ Polinom operator*(const Monom& m, const Polinom& p)
 }
 std::pair<Polinom, Polinom> operator/(const Polinom& p1, const Polinom& p2) // folosesc un pair pt ca vreau sa returnez si catul, si restul
 {
-    try{
-        if(p1.emptyPoly() || p2.emptyPoly()) throw Empty_poly();
-        Polinom q, r;
-        if(p1.getGrad() < p2.getGrad()) // daca p2 are grad mai mare, catul e automat 0 si restul egal cu p1
-        {
-            q.addMonom(Monom());
-            r = p1;
-            return {q, r};
-        }
-        if(p2.getGrad() == -INF) throw Division_by_zero();
-        Polinom temp = p1;
-        while(temp.getGrad() >= p2.getGrad())
-        {
-            Polinom reminder;
-            Monom mon_rem(temp.getGrad() - p2.getGrad(), temp.getLeadingCoef() / p2.getLeadingCoef()); // e algoritmu normal de impartire la polinoame
-            reminder = mon_rem * p2; // iau fiecare grad si gasesc monomu cu care trebuie inmultit p2 ca sa ajung la gradul curent al lui p1;
-            temp = temp - reminder;
-            q.addMonom(mon_rem);
-        }
-        // acum catul e gata, restul e determinat printr-un simplu calcul
-        r = p1 - p2 * q;
+    if(p1.emptyPoly() || p2.emptyPoly()) throw Empty_poly();
+    Polinom q, r;
+    if(p1.getGrad() < p2.getGrad()) // daca p2 are grad mai mare, catul e automat 0 si restul egal cu p1
+    {
+        q.addMonom(Monom());
+        r = p1;
         return {q, r};
     }
-    catch(Empty_poly& ep)
+    if(p2.getGrad() == -INF) throw Division_by_zero();
+    Polinom temp = p1;
+    while(temp.getGrad() >= p2.getGrad())
     {
-        std::cout << "Nu se poate face impartirea cu termeni polinoame goale!";
-        exit(EXIT_FAILURE);
+        Polinom reminder;
+        Monom mon_rem(temp.getGrad() - p2.getGrad(), temp.getLeadingCoef() / p2.getLeadingCoef()); // e algoritmu normal de impartire la polinoame
+        reminder = mon_rem * p2; // iau fiecare grad si gasesc monomu cu care trebuie inmultit p2 ca sa ajung la gradul curent al lui p1;
+        temp = temp - reminder;
+        q.addMonom(mon_rem);
     }
-    catch(Division_by_zero& dz)
-    {
-        std::cout << "Nu se poate face impartirea la un polinom nul!";
-        exit(EXIT_FAILURE);
-    }
+    // acum catul e gata, restul e determinat printr-un simplu calcul
+    r = p1 - p2 * q;
+    return {q, r};
 }
 
 bool operator==(const Polinom& p1, const Polinom& p2)
@@ -331,15 +298,8 @@ std::ostream& operator<<(std::ostream& out, const Polinom& poli)
 
 float Polinom::getLeadingCoef() const
 {
-    try{
-        if(this->nr_monoame == 0) throw Empty_poly();
-        return monoame[this->nr_monoame - 1].getCoef();
-    }
-    catch(Empty_poly& ep)
-    {
-        std::cout << "Un polinom gol nu are niciun coeficient!\n";
-        exit(EXIT_FAILURE);
-    }
+    if(this->nr_monoame == 0) throw Empty_poly();
+    return monoame[this->nr_monoame - 1].getCoef();
 }
 
 void Polinom::addMonom(Monom m) // metoda care adauga un nou monom in polinom
@@ -390,58 +350,50 @@ void Polinom::removeMonom(int grad) // o sa scoata din polinom monomul de grad d
 
 bool Polinom::iredEinstein() // Atentie!! Din moment ce nu e o conditie necesara(doar suficienta), e posibil sa existe polinoame ireductibile(sau reductibile) care sa nu fie gasite de metoda.
 {
-    try{
-        if(this->emptyPoly()) throw Empty_poly();
-        Monom firstTerm;
-        int smallestCoef = INF; // iau si cel mai mic coeficient(fara ultimul) ca sa simplific cautarea de prime
-        for(int i = 0; i < this->nr_monoame; ++i)
-        {
-            if(this->monoame[i].getGrad() == 0)
-            {
-                firstTerm = this->monoame[i];
-            }
-
-            if(i != this->nr_monoame - 1 && this->monoame[i].getCoef() && abs(this->monoame[i].getCoef()) < smallestCoef)
-            {
-                smallestCoef = this->monoame[i].getCoef(); // folosesc abs pt ca semnul e irelevant pentru divizibilitate
-            }
-        }
-        if(firstTerm.getGrad() != 0) // asta e totuna cu a0 = 0, caz in care polinomul nu poate fi ireductibil
-            return false;
-        for(int p = 2; p <= smallestCoef; ++p) // acum caut numaru prim cu pricina(daca exista)
-        {
-            bool ePrim = true;
-            for(int ip = 2; ip * ip <= p; ++ip) // verific daca p e un nr prim
-                if(p % ip == 0)
-                    {
-                        ePrim = false;
-                        break;
-                    }
-            if(ePrim && (int)firstTerm.getCoef() % (p * p) != 0) // verific direct aici conditia ca p^2 sa nu divida a0
-            {
-                bool eOk = true;
-                for(int i = 0; i < this->nr_monoame - 1; ++i)
-                {
-                    if(this->monoame[i].getCoef() && (int)this->monoame[i].getCoef() % p != 0)
-                    {
-                        eOk = false;
-                        break;
-                    }
-                }
-                if(eOk)
-                {
-                    if((int)this->getLeadingCoef() % p != 0)
-                        return true;
-                }
-            }
-        }
-        return false; // daca a ajuns aici inseamna ca toate nr prime posibile au fost incercate si nu au mers
-    }
-    catch(Empty_poly& ep)
+    if(this->emptyPoly()) throw Empty_poly();
+    Monom firstTerm;
+    int smallestCoef = INF; // iau si cel mai mic coeficient(fara ultimul) ca sa simplific cautarea de prime
+    for(int i = 0; i < this->nr_monoame; ++i)
     {
-        std::cout << "Nu are sens aplicarea criteriului lui Einstein la un polinom gol.";
-        exit(EXIT_FAILURE);
+        if(this->monoame[i].getGrad() == 0)
+        {
+            firstTerm = this->monoame[i];
+        }
+        if(i != this->nr_monoame - 1 && this->monoame[i].getCoef() && abs(this->monoame[i].getCoef()) < smallestCoef)
+        {
+            smallestCoef = this->monoame[i].getCoef(); // folosesc abs pt ca semnul e irelevant pentru divizibilitate
+        }
     }
+    if(firstTerm.getGrad() != 0) // asta e totuna cu a0 = 0, caz in care polinomul nu poate fi ireductibil
+        return false;
+    for(int p = 2; p <= smallestCoef; ++p) // acum caut numaru prim cu pricina(daca exista)
+    {
+        bool ePrim = true;
+        for(int ip = 2; ip * ip <= p; ++ip) // verific daca p e un nr prim
+            if(p % ip == 0)
+                {
+                    ePrim = false;
+                    break;
+                }
+        if(ePrim && (int)firstTerm.getCoef() % (p * p) != 0) // verific direct aici conditia ca p^2 sa nu divida a0
+        {
+            bool eOk = true;
+            for(int i = 0; i < this->nr_monoame - 1; ++i)
+            {
+                if(this->monoame[i].getCoef() && (int)this->monoame[i].getCoef() % p != 0)
+                {
+                    eOk = false;
+                    break;
+                }
+            }
+            if(eOk)
+            {
+                if((int)this->getLeadingCoef() % p != 0)
+                    return true;
+            }
+        }
+    }
+    return false; // daca a ajuns aici inseamna ca toate nr prime posibile au fost incercate si nu au mers
 }
 
 void buildFactors(int nr, std::set<int>& factors)
@@ -475,6 +427,7 @@ float Polinom::plugInNumber(float var) const // metoda asta returneaza rezultatu
 
 bool Polinom::isReductible() const
 {
+    if(this->grad == 1) return false;
     std::set<int> constFactors, leadingFactors;
     int constTerm = 0, leadingTerm = this->getLeadingCoef();
     for(int i = 0; i < this->nr_monoame; ++i) // caut coeficientul termenului constant, daca nu apare in array u de monoame inseamna ca e zero
@@ -510,23 +463,24 @@ bool Polinom::isReductible() const
     }
     // daca am ajuns aici, avem o radacina in correctVal
     // tot ce ramane de facut e de construit un polinom de grad 1 de forma x - correctVal si sa impart polinomu original la el
-    try{
-        Polinom first_factor;
-        first_factor.addMonom(Monom(0, -correctVal));
-        first_factor.addMonom(Monom(1, 1));
-        if(first_factor == *this) throw Same_poly();
-        return true;
-    }
-    catch(Same_poly& sp)
-    {
-        return false;
-    }
+    Polinom first_factor;
+    first_factor.addMonom(Monom(correctVal == 0 ? -INF : 0 , -correctVal));
+    first_factor.addMonom(Monom(1, 1));
+    if(first_factor == *this) return false;
+    return true;
 
 }
 
 /// mai multe detalii despre algoritmul utilizat aici: https://en.wikipedia.org/wiki/Rational_root_theorem
 std::vector<Polinom*> Polinom::reducedForm() // voi folosi radacini rationale pentru a determina o forma redusa a polinomului; daca nu are o sa-l consider ireductibil
 {
+    if(this->grad == 1)
+    {
+        std::vector<Polinom*> ret;
+        Polinom* temp = new Polinom(*this);
+        ret.push_back(temp);
+        return ret;
+    }
     std::set<int> constFactors, leadingFactors;
     int constTerm = 0, leadingTerm = this->getLeadingCoef();
     for(int i = 0; i < this->nr_monoame; ++i) // caut coeficientul termenului constant, daca nu apare in array u de monoame inseamna ca e zero
@@ -565,28 +519,26 @@ std::vector<Polinom*> Polinom::reducedForm() // voi folosi radacini rationale pe
     }
     // daca am ajuns aici, avem o radacina in correctVal
     // tot ce ramane de facut e de construit un polinom de grad 1 de forma x - correctVal si sa impart polinomu original la el
-    try{
-        Polinom* first_factor = new Polinom;
-        first_factor->addMonom(Monom(0, -correctVal));
-        first_factor->addMonom(Monom(1, 1));
-        if(*first_factor == *this) throw Same_poly();
-        Polinom* second_factor = new Polinom;
-        *second_factor = ((*this) / (*first_factor)).first;
-        std::vector<Polinom*> ret;
-        ret.push_back(first_factor);
-        ret.push_back(second_factor);
-        this->avoidLeaks = ret;
-        return ret;
-    }
-    catch(Same_poly& sp)
-    {
-//      std::cout << "Polinomul e de fapt ireductibil.\n";
+    Polinom* first_factor = new Polinom;
+    first_factor->addMonom(Monom(correctVal == 0 ? -INF : 0, -correctVal));
+    first_factor->addMonom(Monom(1, 1));
+
+    if(*first_factor == *this){
         std::vector<Polinom*> ret;
         ret.push_back(new Polinom(*this));
         this->avoidLeaks = ret;
         return ret;
     }
+
+    Polinom* second_factor = new Polinom;
+    *second_factor = ((*this) / (*first_factor)).first;
+    std::vector<Polinom*> ret;
+    ret.push_back(first_factor);
+    ret.push_back(second_factor);
+    this->avoidLeaks = ret;
+    return ret;
 }
+
 
 void Polinom::showReducedForm()
 {
